@@ -48,10 +48,10 @@ def is_pure_dir(dir_path=".", dirs_included=False) -> bool:
             except IndexError:
                 continue
         elif obj.is_dir() and dirs_included:
-            dir_types.add(obj.name)
+            dir_types.add("dir")
     
     if dirs_included:
-        return len(file_types) == 0 and len(dir_types) == 1
+        return (len(file_types) + len(dir_types)) == 1
     else:
         return len(file_types) == 1
 
