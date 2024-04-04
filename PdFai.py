@@ -37,6 +37,6 @@ def images_to_pdf(image_folder, pdf_file):
     print(f"PDF created: {pdf_file}")
 
 if __name__ == "__main__":
-    image_folder = "/home/elreyodev/Downloads/DS Quiz/"  # Change this to your image folder path
-    pdf_file = "DS QUIZ.pdf"  # Output PDF file path
+    image_folder = "/path/to/your/dir/"  # Change this to your image folder path
+    pdf_file = "output_file_name.pdf"  # Output PDF file path
     images_to_pdf(image_folder, pdf_file)
