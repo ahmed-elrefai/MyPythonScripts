@@ -1,5 +1,7 @@
 import os
 
+
+
 def files_with_extension(ext, dir='.') -> list[str]:
     """returns all the files that end with ext
        for instance: '.py'"""
@@ -31,8 +33,28 @@ def find_dir_type(dir_path=".") -> str:
                     file_types[ext] += 1
                 except KeyError:
                     file_types[ext] = 1
+    try:
+        return max(file_types, key=file_types.get) 
+    except ValueError:
+        return None
 
-    return max(file_types, key=file_types.get) 
+def find_dirs_type(working_dir, supported_ext:dict):
+    content = os.scandir(working_dir)
+    dir_types = {} 
+    for dir in content:
+        dir_type = find_dir_type(dir.path)
+        if dir_type in supported_ext.keys():
+            try:
+                dir_types[dir_type] += 1
+            except KeyError:
+                dir_types[dir_type] = 1
+        else:
+            try:
+                dir_types["unknown"] = 1
+            except KeyError:
+                dir_types["unknown"] += 1
+    max_key = max(dir_types.items(), key=lambda x: x[1])[0]
+    return max_key
 
 def is_pure_dir(dir_path=".", dirs_included=False) -> bool:
     contents = os.scandir(dir_path)
@@ -55,6 +77,4 @@ def is_pure_dir(dir_path=".", dirs_included=False) -> bool:
     else:
         return len(file_types) == 1
 
-# print("Projects found:")
-# for dir in dirs_with_extension(".sln"):
-#     print(f"- {dir}")
+# print(find_dir_type("/home/elreyodev/Mycode/python/Problem Solving/"))
