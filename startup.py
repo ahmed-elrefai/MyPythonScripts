@@ -1,8 +1,9 @@
 import os
 from ElreyOS import *
+import shutil
 
-projects_dir = os.path.expanduser("~/Mycode/python/MyModules") # path relative to current user
-supported_ext = {"python":'.py', "java":".java", "c++":".cpp"}
+supported_ext = {'.py':"python", ".java":"java", ".cpp":"c++"}
+projects_dir = os.path.expanduser("~/Mycode/") # path relative to current user
 
 def organize_dirs():
     """
@@ -14,9 +15,25 @@ def organize_dirs():
     Step4: Grouping Projects to Done and InDev
     Step5: Repeat Each Startup.
     """
-    state = find_dir_state(projects_dir)
-    print(state)
-    filter_content(state, projects_dir)
+    
+    # for dir in supported_ext.values():
+        # state = find_dir_state(projects_dir + dir)
+        # print(state)
+        # filter_content(state, projects_dir + dir)
+    state = find_dir_state("/home/elreyodev/Mycode/python/MyModules/dir")
+    filter_content(state,"/home/elreyodev/Mycode/python/MyModules/dir")    
+
+    # for dir in os.listdir(projects_dir):
+    #     dir_type = find_dir_type(projects_dir + dir)
+    #     if dir not in supported_ext.values() and dir_type:
+    #         print(dir)
+    #         shutil.move(projects_dir + dir, projects_dir + supported_ext[dir_type])
+    #     elif dir not in supported_ext.values() and (dir_type == None or dir_type == "unknown"):
+    #         if not os.path.exists(projects_dir + "other"):
+    #             os.mkdir(projects_dir+ "other")
+    #         print(dir)
+    #         shutil.move(projects_dir + dir, projects_dir + "other")
+
 
 
 
@@ -36,14 +53,12 @@ def find_dir_state(working_dir=".") -> int:
         if len(content) == 0:
             print("Empty Working Directory.")
             return -1
-        elif len(content) == 2:
-            if ["Done", "InDev"] in content:
-                print("we are in a language Directory.")
-                return 2
-            print("this is an 'InDev' Projects Directory with 2 Projects")
-            return 1
+        
+        if os.path.exists(os.path.join(working_dir, "Done")) and os.path.exists(os.path.join(working_dir, "InDev")):
+            print("we are in a language Directory.")
+            return 2
         else:
-            print("this is an 'InDev' Projects Directory multiple Projects")
+            print("this is an 'InDev' Projects Directory")
             return 1
 
     elif find_dir_type(working_dir):
@@ -60,12 +75,40 @@ def find_dir_state(working_dir=".") -> int:
             return 3
         
     
-def filter_content(state:int, dir="."):
+def filter_content(state:int, working_dir="."):
     """filters content in 1 of 3 ways according to the state of file tree"""
-    
-    
 
+    content = os.scandir(working_dir)
+    parent_dir = os.path.dirname(working_dir)
+    # meaning: dir content is a group of other directories 
+    if state == 1:
+        dirs_type = find_dirs_type(working_dir, supported_ext)
+        print(dirs_type)
+        for dir in content:
+            if find_dir_type(dir) != dirs_type:
+                shutil.move(dir.path, parent_dir)
+                print("The directory: '",dir.name, "' has been moved to:", parent_dir)
+        if parent_dir == "InDev":
+            shutil.move()
+        
+    elif state == 2:
+        for dir in content:
+            if "-done" in dir.name:
+                print("marking '",dir.name,"' as done")
+                shutil.move(dir, os.path.join(working_dir , "Done"))
+            elif "-done" not in dir.name and dir.name != "Done":
+                shutil.move(dir, os.path.join(working_dir , "InDev"))
+    elif state == 3:
+        dir_type = find_dir_type(parent_dir)
+        for file in content:
+            file_type = "." + file.name.split(".")[1]
+            if  file_type != dir_type:
+                shutil.move(file, parent_dir)
 
+    else:
+        print("invalid state!")
+        return
+    
 
 
 def startup():
